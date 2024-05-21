@@ -1,0 +1,396 @@
+\paragraph{Problem 1:} (10 points) Suppose we are given a flow network $G=(V,E)$ and capacity function $c$ defined over the (directed) edges. But suppose we also have \emph{minimum} flow requirements on the edges, and that is defined by a given a function $d$ similar to $c$, and for every flow going from $u$ to $v$ we require $d(u,v) \leq f(u,v) \leq c(u,v)$. The goal is to compute the maximum flow that respects all the upper and lower bound constraints as well.
+
+\begin{enumerate}[label=\alph*]
+\item (5 points) If we try to use the FF algorithm to solve this generalization of max flow problem, what would be the obstacle? Namely, what step of the FF algorithm does not work anymore?
+
+
+
+\item (5 points) How can we solve this problem  using the more advanced tools that we have learned? Namely, show how to reduce the maximum flow problem in its general form above to a problem that we covered in class.
+\end{enumerate}
+\paragraph{Answer:}
+% Add your answer for problem 1 here:
+
+\textbf{a:} First of all in basic FF algorithm all flows on each edge is defined as zero. Here we can not directly do that. We have to go through some reduction. Second, the criteria to find augmenting path in residual graph will not be applicable directly. We can not just choose the flow that is the minimum capacity in the augmenting path. We need some reduction. Since we have to find out a feasible flow such that for each edge in the augmenting path follow the constraint of $d(u,v) \leq f(u,v) \leq c(u,v)$.\\
+\textbf{b:}
+First step here will be to determine the feasible flow that satisfies the constraints for each edge. The next step would be to find the maximum flow. \\
+To begin with the reduction of the flow network $G=(V,E)$ to a new network $G'=(V',E')$. In the new network there will be a new source $s'$ and new sink $t'$. We are adding edges from $s'$ to each vertex in $V$ and from each vertex in $V$ to the new sink $t'$. Also a new edge from the previous sink $t$ to source $s$. Now defining the capacity $c'(e)$ of each edge $e \in E'$. 
+
+\begin{itemize}
+    \item For each vertex $v \in V$, $c'(s',v)=\sum_{u\in V}d(u,v)$
+    \item For each vertex $v \in V$, $c'(v,t')=\sum_{w \in V}d(v,w)$
+    \item For each edge $e \in E$ $c'(u,v)=c(u,v)-d(u,v)$
+    \item $c'(t,s)=\infty$
+\end{itemize}
+Because of this transformation we can say that 
+\[val=\sum_{v\in V}c'(s',v)=\sum_{v \in V}c'(v,t')=\sum_{(u,v) \in E}d(u,v)\]
+
+If every edge leaving $s'$ and coming to $t'$ is qual to val we call that graph $G'$ is saturating. Every saturating flow is a maximum flow, so we can use maximum flow algorithm. Since, feasible flow for graph G can be computed if there is a maximum flow from $s'$ to $t'$ in graph $G'$ and that flow is saturating. 
+\newpage
+\paragraph{Problem 2:} (Part (a) is problem 26.1-7 from CLRS)
+
+(Part a 5 points): Suppose that, in addition to edge capacities, a flow network has vertex capacities.
+That is each vertex $v$ has a capacity limit $\ell(v)$ on how much flow can pass though $v$. Show
+how to transform a flow network $G=(V,E)$ with vertex capacities into an equivalent
+flow network $G'=(V',E')$ without vertex capacities, such that a maximum flow in $G'$ has the same value as a maximum flow in $G$. While you are describing $G'$, also answer: how many vertices and edges does $G'$ have?
+
+
+(Part b 10 points): Use Part (a) to design an algorithm for the following problem: Find the maximum number of vertex disjoint paths from a source $s$ to a sink $t$. Two paths $P_1,P_2$ from $s$ to $t$ are vertex disjoint if they only share the vertices $s,t$ and all other vertices there are different. Explain the details of how you use maximum flow exactly. If you need to rely on specific properties of specific \emph{algorithms} for solving the maximum flow, state which properties you need and whey they hold.
+
+\paragraph{Answer:}
+% Add your answer for problem 2 here:
+\textbf{a}: Here for each node with vertex capacity we will replace that node  with two new nodes. For example v is a node with vertex capacity $l(v)$. We will replace this node with $v_{in}$ and $v_{out}$.So the edge that was previously incoming to $v$ will be attached to $v_{in}$ node with same edge capacity and the edge that was outgoing from $v$ will be outgoing from the new node $v_{out}$ with corresponding edge capacity. And finally we will add another edge between $v_{in}$ and $v_{out}$ with capacity $l(v)$. Since for each node we are replacing it with 2 new nodes, the number of vertices in graph $G'$ will be $2|V|$.And the number of new edges is $|V|+|E|$ cause $|E|$ was edge number from actual graph $G$ and we are adding an extra edge between the added two vertices for each vertex of the original graph.
+
+\textbf{b}
+So here in this problem we have to find the maximum vertex disjoint path for the given graph which has both edge capacity and vertex capacity. So first we will convert the graph as we mentioned in the part a. Instead of using the given capacity we will now consider capacity  of 1 in each edge. That means the given edge and the edge we created to reduce the vertex capacity all will have a edge capacity of 1. Now we will compute the maximum flow for this graph where we will say that vertex s is our source and vertex t as sink. So, it will return a final maximum flow for this graph which is actually the number of vertex disjoint path here. Now we have to argue that why this number is maximum. This is because we set the edge capacity for each edge 1. So, once the FF found an augmenting path from s to t of flow 1 making the remaining capacity 0, it will not ever visit the same vertex again. 
+
+
+
+\newpage
+\paragraph{Problem 3:} 
+Let $G=(V,E)$ be a weighted directed graph with  weight function $w(u,v)$ for all $ u,v \in V$, and let $s,t \in V$ be two vertices of this graph. Consider the following linear program.
+\begin{itemize}
+    \item Variables: For each vertex $u \in V$, $\delta_u$ is a real valued variable.
+    \item Constraints: $\delta_s=0$, and for each edge $(u,v) \in E$, $\delta_v \leq \delta_u + w(u,v)$.
+    \item Objective function: \emph{maximize} $\delta_t$.
+\end{itemize}
+
+Part a: (5 points) show that if the graph $G$ has a negative cycle under the weights $w$, then the above LP is infeasible.
+
+Part b: (5 points) what is the dual of the LP above?
+
+Part c: (10 points) show that if the graph $G$ has no negative cycle, then maximum of $\delta_t$ (i.e., the optimal value) will be equal to the shortest path from $s$ to $t$. You can either use part b and strong duality theorem or directly give a proof for the LP of part a.
+
+Hint: for a direct proof it is sufficient to do 2 things:
+(1) that the shortest path is less than or equal to the maximum of $\delta_t$, (2)  that the equality can be achieved.
+
+
+
+\paragraph{Answer:}
+% Add your answer for problem 2 here:
+\textbf{a:}\\
+The constraints in this LP encodes that every edge of the graph must be relaxed. Because of these relaxations we will get at most the shortest path for each vertex v from the source s. This Linear Program is feasible if and only if there is no negative cycle. In other word if there is no negative cycle in the graph this LP will return the true shortest path. However, if this graph has a negative cycle then for any distance value $\delta_v$, at least one edge in this cycle will not be relaxed, it will get updated and the algorithm never ends. That means the second constraint  $\delta_v \leq \delta_u + w(u,v)$ will not be hold. This proves that if there is a negative cycle in the graph then this LP is infeasible. \\
+
+\textbf{b:}
+In the primal form of this LP the constraints were over the edges and a variable for each vertex. In the dual form the constraints will be over vertex and variables will be over edge. 
+So now we have to minimize the following function
+\[minimize \sum(w(u,v).x(u,v))\] 
+Here $x(u,v)$ is the edge variables it tells that if edge $(u,v)$ is the part of the shortest path. This is 1 if it is part of the shortest path otherwise this is 0. There is no dual constraint for $\delta_s=0$. \\
+For every edge $(u,v) \in E$  we have the constraint $x(u,v) \geq 0$ \\
+\begin{comment}
+Finally, the coefficients of the dual objective vector are the edge lengths, and the coefficients of the dual offset vector are +1 for t and 0 for every other vertex.So the constraints are
+\[\sum_ux(u,t)-\sum_wx(t,w)=1\]
+\[\sum_ux(u,v)-\sum_wx(v,w)=0\] for every vertex $v \ne s,t$(for the equation above, bad at latex) and 
+\[x(u,v) \geq 0\]
+\end{comment}
+\begin{equation}
+    \sum_u x(i,u)- x(u,i)=
+    \begin{cases}
+        1 & \text{if $i=s$ }\\
+        -1 & \text{if $i=t$}\\
+        0 & \text{otherwise}
+    \end{cases}
+\end{equation}
+and $x(u,v) \geq 0$ \\
+This is the dual of the LP above.\\
+\textbf{(c)}
+We can prove it using Strong Duality theorem. It tells that if the primal linear program has an optimal solution and also the dual linear program has the optimal solution, then the objective values coincide. 
+The primal version of this algorithm is only feasible if there is no negative cycle. $\delta_v$ represents the distance of node v from source node s. So the constraint is saying that distance from s to v should not be greater than the distance from the source to vertex u plus the weight between the edge u and v. Let p be a shortest path from s to t. and let d(t) be the length of this path. We must have $\delta(t)\geq d(t)$ because we we are trying to maximize $\delta(t)$. Now if we set $d(i)=\delta(i)$ for every vertex i on path p then it is obviously a feasible solution. Now we have to show that $\delta(t) $ is not greater than d(t). Assume  that, v be the first vertex on p such that $\delta(v)>d(v)$. If u be its predecessor then p is a shortest path to v as $d(v)=d(u)+w(u,v)\geq\delta(u)+w(u,v)\geq\delta(v)$ and this is a contradiction according to our assumption. \\
+The dual of this problem is the minimum cost flow problem. So a minimum cost flow from s to t is actually the shortest path from s to t. This  dual liner program is feasible iff graph contains a path from s to t. If the graph contains a path from s to t then sending one unit of flow along that path gives us a feasible solution. So here the shortest path is precisely the cheapest way to send a unit of flow.\\
+According to the strong duality theorem both primal and dual has an optimal solution. Since we can say that if the graph G does not have any negative cycle then the maximum of $\delta(t)$ will be equal to shortest path from s to t. 
+\newpage
+\paragraph{Problem 4:} (10 points)  
+In class we saw the definition of an augmenting path in a residual network of a flow inside a flow network. The residual capacity of an augmenting path (as we saw and could be found in the book) is simply the minimum residual capacity of all the edges along this path (along the direction of the path -- note that there are edges going backwards as well which we ignore here). The goal of this problem is to design an algorithm for finding the \emph{best} path in term of its residual capacity. To this goal, solve the following problem.
+We are given a directed weighted (with non-negative weights) graph $G$ and a source node $s$ and a sink node $t$. For any path $P$ from $s$ to $t$, define its capacity to be the \emph{minimum} weight of any edge along this path. Now, design an algorithm that finds a path from $s$ to $t$ with \emph{maximum} capacity.
+
+Hint: you can use any of the shortest path algorithms, use their \emph{idea} and solve the problem above. In particular, if you use the idea behind Dijkstra, you get an algorithm that runs in $O(n^2)$ and if you use ideas based on Bellman-Ford or Floyd-Warshall they lead to higher running time of $O(n^3)$ which is still acceptable.
+
+\paragraph{Answer:}
+% Add your answer for problem 2 here:
+
+I am going to use a modified version of Dijkstra algorithm to find a path from $s$ to $t$ with maximum capacity. Instead of distance array of Dijkstra algorithm I am going to define an array called 'capacity' which holds the maximum minimum capacity for each node that means among all the paths from the source to the respective node, considering the path that gives the maximum value for the minimum capacity of that path. Initially for the source capacity will be $+\infty$ and for all other nodes it will be $-\infty$. To update the neighbouring nodes' capacity of a particular node will be complete opposite of the typical dijkstra algorithm. we update the capacity of each neighboring node with the maximum value among the previous value, the capacity of the node that got us to this neighboring node, and the capacity of the edge we just crossed. Also, we’ll need to update this neighboring node’s capacity inside the data structure we use. We will choose the node with largest capacity. The final algorithm is given below.
+\begin{algorithm}
+\caption{Modified Dijkstra for Maximum capacity}
+\begin{algorithmic}[1]
+\For{each vertex v in Graph G}\\
+\qquad    \STATE $capacity[v]=-\infty$\\
+\qquad    \STATE $par[v]=NIL$
+\EndFor\\
+\STATE $capacity[source]=+\infty$\\
+\STATE $Q= all\> nodes \> in\> the\> graph$\\
+\While{Q is not empty}\\
+\qquad \STATE $u= extract \> the \> node\> with\> the \> largest\> capacity\> in \>capacity\> array\> of\> nodes.$
+\qquad \If{$capacity[u]==-\infty$}\\
+\qquad \qquad break
+\qquad \EndIf\\
+\qquad \For {each $v \in adj[u]$}\\
+\qquad \qquad  $temp = max(capacity[v], min(capacity[u], c_f(u, v)))$\\
+\qquad\qquad \If{$temp> capacity[v]$}\\
+\qquad\qquad\qquad \STATE $capacity[v]= temp$\\
+\qquad\qquad\qquad \STATE $par[v]=u$\\
+\qquad\qquad\qquad \STATE $Q.update(v)$
+\qquad\qquad \EndIf\\
+\qquad \EndFor\\
+\EndWhile\\
+\STATE return capacity, par
+\end{algorithmic}
+
+
+\end{algorithm}
+
+
+The algorithm above calculates the maximum capacity for the graph and parents for each node. Now we have to find out the path to reach $t$ from $s$.
+
+
+\begin{algorithm}
+\caption{Find path}
+\begin{algorithmic}[1]
+\State input: Graph G, Source s and sink t
+\State output: path p from s to t with maximum capacity
+\State capacity,par=Modified\_Dijkstra\_for\_Maximum\_ capacity(G,s)
+\While{$t !=undefined$}
+\State $path.add(t)$
+\State $t=par[t]$
+\EndWhile
+\State return reverse(path)
+\end{algorithmic}
+\end{algorithm}
+\end{document}
+\subsection{Experimental Results}
+\label{subsec:exp_results}
+Our key results include: (i) SwitchTransformer achieves comparable or slightly lower accuracy than BERT, however, (ii) SwitchTransformer requires significantly lower training time than BERT.
+\subsubsection{Liar dataset}
+\noindent\textbf{Accuracy.}
+Figure~\ref{fig:accuracy_comparison_liar} shows the accuracy comparison between SwitchTransformer and BERT on the Liar dataset.
+\begin{figure}[h]
+  %\vspace{-0.25in}
+  % \vspace{-0.3in}.
+  \centering
+ \subfloat[Accuracy with maximum sequence length=50\label{fig:accuracy_liar}]{\includegraphics[width=0.235\textwidth,height=0.1\textheight]{Figure/accuracy_liar.png}}
+ \hfill
+ \subfloat[Accuracy with varying maximum sequence lengths\label{fig:accuracy_liar_varyingLengths}]{\includegraphics[width=0.235\textwidth,height=0.1\textheight]{Figure/accuracy_liar_varyingLengths.png}}%\vspace{-0.15in}
+  \caption{Accuracy comparison between SwitchTransformer (SwT) and BERT on Liar dataset.}
+  \label{fig:accuracy_comparison_liar}
+  % \vspace{-0.15in}
+\end{figure}
+
+We see that BERT achieves 2\%-4\% higher accuracy than SwitchTransformer. This is because BERT considers both forward and backward contexts in its prediction, whereas SwitchTransformer only looks into the backward context. This result shows the importance of considering both contexts during prediction.
+
+
+\noindent\textbf{Training Time.}
+Figure~\ref{fig:trainingTime_comparison_liar} shows the training time comparison between SwitchTransformer and BERT on the Liar dataset.
+\begin{figure}[h]
+  %\vspace{-0.25in}
+  % \vspace{-0.3in}.
+  \centering
+ \subfloat[Training time with maximum sequence length=50\label{fig:trainingTime_liar}]{\includegraphics[width=0.235\textwidth,height=0.1\textheight]{Figure/trainingTime_liar.png}}
+ \hfill
+ \subfloat[Training time with varying maximum sequence lengths\label{fig:trainingTime_liar_varyingLengths}]{\includegraphics[width=0.235\textwidth,height=0.1\textheight]{Figure/trainingTime_liar_varyingLengths.png}}%\vspace{-0.15in}
+  \caption{Training time comparison between SwitchTransformer (SwT) and BERT on Liar dataset.}
+  \label{fig:trainingTime_comparison_liar}
+  % \vspace{-0.15in}
+\end{figure}
+
+We see that SwitchTransformer achieves up to 28\% lower training time than BERT. This is because the feed forward network is divided horizontally in SwitchTransformer and not all feed forward networks are activated for each input, thus achieving sparse activation and more parallelization. This result indicates that the sparsely activated models can reduce training cost even when the number of parameters are huge as discussed in Section~\ref{sec:intro}.
+
+With the increase of the maximum sequence length, both methods show the trend of increasing training time as each method needs to process more tokens concurrently with the increase of maximum sequence length.
+
+\subsubsection{FARN dataset}
+Figure~\ref{fig:accuracy_comparison_farn} and Figure~\ref{fig:trainingTime_comparison_farn} show the accuracy and training time comparisons between SwitchTransformer and BERT on the FARN dataset, respectively.
+\begin{figure}[h]
+  %\vspace{-0.25in}
+  % \vspace{-0.3in}.
+  \centering
+ \subfloat[Accuracy with maximum sequence length=200\label{fig:accuracy_farn}]{\includegraphics[width=0.235\textwidth,height=0.1\textheight]{Figure/accuracy_farn.png}}
+ \hfill
+ \subfloat[Accuracy with varying maximum sequence lengths\label{fig:accuracy_farn_varyingLengths}]{\includegraphics[width=0.235\textwidth,height=0.1\textheight]{Figure/accuracy_farn_varyingLengths.png}}%\vspace{-0.15in}
+  \caption{Accuracy comparison between SwitchTransformer (SwT) and BERT on FARN dataset.}
+  \label{fig:accuracy_comparison_farn}
+  % \vspace{-0.15in}
+\end{figure}
+\begin{figure}[h]
+  %\vspace{-0.25in}
+  % \vspace{-0.3in}.
+  \centering
+ \subfloat[Training time with maximum sequence length=200\label{fig:trainingTime_farn}]{\includegraphics[width=0.235\textwidth,height=0.1\textheight]{Figure/trainingTime_farn.png}}
+ \hfill
+ \subfloat[Training time with varying maximum sequence lengths\label{fig:trainingTime_farn_varyingLengths}]{\includegraphics[width=0.235\textwidth,height=0.1\textheight]{Figure/trainingTime_farn_varyingLengths.png}}%\vspace{-0.15in}
+  \caption{Training time comparison between SwitchTransformer (SwT) and BERT on FARN dataset.}
+  \label{fig:trainingTime_comparison_farn}
+  % \vspace{-0.15in}
+\end{figure}
+In this dataset, SwitchTransformer achieves comparable accuracy with BERT. However, SwitchTransformer requires up to 50\% less training time than BERT for the same reasons described above.
+
+\section{Background Study}
+Actor Critic method is a combination of policy learning and value learning.  The policy function plays the role of the actor: it picks what moves to play. The value function is the critic: it tracks whether the agent is ahead or behind in the course of the game. That feedback guides the training process. Actor-Critic method is available for both on-policy and off policy setting. In on-policy setting, state-action function is learned from actions that are taken from current policy. On-Policy learning algorithms are the algorithms that evaluate and improve the same policy which is being used to select actions. On the other hand, Off-Policy learning algorithms evaluate and improve a policy that is different from Policy that is used for action selection. That means target policy is not similar to behavior policy, where target policy means the policy that an agent is trying to learn and behavior policy is the policy that is being used by an agent for action select. \cite{degris2012off} first introduced the off-policy actor critic method. It has two learners: actor and critic. Actor is responsible for policy update and critic is responsible for learning an off policy estimation of value function for current actor policy which is different from behavior policy. This is later used by the actor for policy update. Here authors use gradient TD method GTD($\lambda$) with eligibility traces for learning state-value function. Temporal Difference(TD) learning is a model-free or unsupervised learning approach where an agent is learning from an environment through episodes with no prior knowledge of the environment. $\lambda$ in TD method is the credit assignment variable. This is a value between $0$ and $1$. The higher the value the more credit we assign to further back states and actions. TD($\lambda$) method has two types of implementations: forward view and backward view. In forward view it looks at all n-steps ahead and uses $\lambda$ to essentially decay those future estimates.
+In backward view, an update of values is made at each step. Here comes the Eligibility Traces(ET). ET basically keeps a record of the frequency and recency of entering a given state. It assigns credit to states that are both visited frequently as well as visited recently with respect to our terminal state. However, TD maynot ensure the convergence in off policy setting. Also linear approximation does not guarantee the convergence of TD learning.  TD learning is not an actual gradient descent algorithm. Gradient temporal-difference (GTD) learning addresses this issue, by minimising an objective function corresponding to the error in the Bellman
+equation, by stochastic gradient descent. This objective measures the error between value function $V^\theta$ and the corresponding target given by the Bellman equation $\mathcal{R}+\gamma \mathcal{T}V^\theta$
+. However, the Bellman target typically lies outside the space of value functions that can be represented by function approximator $f$. It causes a projection $\Pi^\theta$ in the space.
+Another method ETD($\lambda$)\cite{sutton2016emphatic} can ensure the convergence with the help of linear function approximation by weighting the updates of TD($\lambda$). The concept of ETD is to rewight the distribution of TD($\lambda$) updates to account for the likelihood of the trajectory leading to the updated state. Each update is emphasized by a follow-on trace:
+\begin{equation}
+    F_t=\gamma(S_t)_{\rho_{t-1}} F_{t-1} +1
+\end{equation}
+Here, $\gamma$ is the discount factor. The Emphatic TD($\lambda$) algorithm \cite{sutton2016emphatic},ETD($\lambda$), incorporates $F_t$ into the conventional eligibility trace update of TD($\lambda$) by emphasizing states. 
+\begin{equation}
+    e_t=\rho_t(\gamma(S_t)\lambda (S_t) e_{t-1}+M_t \phi_t )
+\end{equation}
+
+where $\rho=\frac{\pi(A_t|S_t)}{\mu(A-t|S_t)}$ is the importance sampling for the target policy $\pi$ and the behavior policy $\mu$. The emphatic trace $M_t$ encodes the current state is bootstrapped by other states based on follow-on trace.
+\begin{equation}
+    M_t=\lambda(S_t) + (1-\lambda(S_t))F_t
+\end{equation}
+
+
+
+
+\subsection{Provably Convergent Two-Timescale Off-Policy Actor-Critic
+with Function Approximation \cite{zhang2020provably}}
+A novel stochastic approximation algorithm, Gradient Emphasis Learning (GEM) has been proposed to learn emphasis $m_pi$ using function approximation has been proposed by the author of \cite{zhang2020provably}. GEM can track the true emphasis $m_pi$ under a changing target policy. Their main contibution of the paper is the propose the first provably convergent two-timescale off-policy actor-critic algorithm (COF-PAC) with function approximation. They consider Off-policy control problem under the following excursion objective 
+  \begin{equation}
+     \sum_sd_\mu(s)v_\pi(s)
+ \end{equation}
+ 
+ which is widely used in control. Here, $d_\mu$ is the stationary distribution of the behaviour policy, $v_\pi$ is the value function of the target policy, i: $\mathcal{S} \rightarrow [0,1)$ is the interest function. This objective function is mainly used for off-policy control.
+
+ With i (interest function) the user is able to specify different function in different stage (suppose the user is interested in a specific state, we can set the value of that state to a higher value, if they are in the initial stage, we can set the value for the interest state to 1 and 0 for the other state). Then the objective $J(\pi)$ become similar to epilodical return.
+ 
+ Two main ingredients for their algorithm is - (i) they provide a new perspective of emphatic Temporal difference learning and (ii) under a changing target policy the convergence of a regularized GTD which the earlier GTD algorithms don't consider. 
+ 
+ 
+ They rewrite the following equation of  \cite{imani2018off}
+ 
+ 
+ \begin{equation}
+     J(\pi)=\sum_sd_\mu(s)i(s)v_\pi(s)
+ \end{equation}
+ \begin{equation}
+     \nabla J(\theta)=\sum_s\bar{m}(s)\sum_aq_\pi(s,a)\nabla\pi(a|s)
+ \end{equation}
+ where $\bar{m}=(I-\gamma P^{T}_{\pi})^{-1}D_i \in \rm I\!R^{N_s}$, D = diag($d_u$) (diagonal matrix of the behavourial policy.
+ 
+ They rewrite $\bar{m}$ as $DD^{-1}(I-\gamma P^{T}_\pi)^{-1}D_i$
+ \begin{equation}
+    m_\pi= D^{-1}(I-\gamma P^{T}_\pi)^{-1}D_i
+ \end{equation}
+ Therefore have $\bar{m}=Dm_\pi$
+ 
+ \begin{equation}
+     \nabla_\theta J(\pi)=\rm I\!E_{s\sim d_\mu,a \sim \mu(.|s)}[m_{\pi}(s)\psi_\theta(s,a)q_\mu(s,a)]
+ \end{equation}
+
+ where, $m_\pi\doteq D^{-1}(I-\gamma P^T_pi)^{-1}D_i$, in the form of expectation and introduce a new term $m_pi$. The previous work ignore emphasis directly \cite{degris2012off} or use followon trace to approximate the $m_pi$.  Off-PAC is biased even with linear function approximation. To solve the Off PAC problem \cite{imani2018off} proposed to followon trace ($M_t$) defined recursively which is a scalar.If we assume policy $\pi$ is fixed we can show that from their equation that in the limit $M_t$ is an unbiased estimator of $m_pi$. The problem is in off policy actor critic setting the policy $\pi$ changes in every time step, so it is unclear that the \cite{imani2018off} algorithm is convergent or not. The root cause of that is $M_t$ is memory less, $M_t$  is scalar but $m_pi$ is vector and they are use a scalar to approximate a vector which is maybe too ambitious to be true.\cite{imani2018off}.
+
+The authors \cite{zhang2020provably} propose to learn the emphasis directly with function approximation.
+They observe that emphasis is the fixed point of a Bellman-like operator. 
+
+ \begin{equation}
+    \hat{\mathbb{T}}y \doteq i + \gamma D^{-1}P^T_\pi Dy
+ \end{equation}
+
+The operator $\hat{\mathbb{T}}$ is a contraction mapping with respect to some weighted maximum norm, so this operator $\hat{\mathbb{T}}$ is similar to the bellman operator. The emphasis $m_\pi$ is its fixed point.
+
+Given this similarity, it is probable that to do semi-gradient update based on $\hat(T)$ to learn the emphasis. Such semi-gradient update will diverge with linear function approximation, it is because the operator $\hat{\mathbb{T}}$ is off policy, it evolves with the stationary distribution $d_mu$ by contrast the bellman operator has only one policy $\pi$.
+
+Gradient Temporal Difference Learning (GTD) is used to address the divergence issue of off-policy linear TD.
+
+Inspired by GTD (the following eqn),
+\begin{equation}
+    L(\mu)\doteq \| \pi T_v -v \|_D(v=X\mu)
+\end{equation}
+
+they propose Gradient emphasis learning to learn the emphasis 
+They consider the loss function $L(\mu)$. This loss function $L(\mu)$ is very similar to MSPBE , the only difference is the Bellman operator, the new operator $\hat{T}$.
+\begin{equation}
+    L(w)\doteq \| \pi \hat{T}_m - m \|_D(m=Xw)
+\end{equation}
+
+The convergence of GEM will follow the convergence of GTD. It calculates the expectation, the $Q_\pi$ (use GTD to learn) under $Q_\pi$ (use GEM to learn). But these learning equations are developed under policy evaluation setting which is fixed. But if we consider control setting, the problem is policy $\pi$ is changing in every time step, so it is unclear if it will converge or not. We know that TD converges under changing policy but this is not applicable for the convergence of GTD under changing policy.
+
+To fix the problem they introduce regularization with the objective from a stochastic approximation perspective and changing policy $\pi$. And, finally they propose OFF-PAC with GTD AND GEM using regulariztion which uses one gradient update of loss function $L_w$ and $L_\mu$ at each time step.
+\begin{equation}
+    L(\mu)\doteq \| \pi T_v -v \|_D(v=X\mu) + ||w||^2
+\end{equation}
+
+\begin{equation}
+    L(w)\doteq \| \pi \hat{T}_m - m \|_D(m=Xw) ||w||^2
+\end{equation}
+
+And if we add the ridge regularization their limiting update will become positive definite and now we can use the Konda's argument to show the convergence of GEM under GTD directly and slowly changing target policy. The Algorithm in summary is: 
+
+ \begin{equation}
+     \nabla_\theta J(\pi)=\rm I\!E_{s\sim d_\mu,a \sim \mu(.|s)}[m_{\pi}(s)\psi_\theta(s,a)q_\mu(s,a)]
+ \end{equation}
+
+ where, for the value function $q_\pi$ the use GTD with regularization and for the emphasis $m_\pi$ they use GEM with regularization. Off-PAC is a two-time scale algorithm. At each time step they do one gradient update to minimize the loss function $L_\mu$ and $L_w$. COF-PAC visits a neighborhood of a stationary point of $J_pi$ infinitely many times.
+
+\subsection{Doubly Robust Off-Policy Actor-Critic: Convergence and Optimality \cite{xu2021doubly}}
+In paper \cite{degris2012off}, it introduces an actor-critic method that can be applied off policy, that means this method has two learners: actor; responsible for updating the policy, critic; responsible for learning an off-policy estimate of the value function for the current actor policy different from the behavior policy. It was later used to update policy weight. This paper considers a critic model with a gradient TD methods including eligibility traces for learning state-value function. Here the policy has a weight vector $u$. The goal is to maximize $u$ for the performance measure function $J$
+\begin{equation}
+    J_{\gamma}(u)=\sum_{s\in S} d^b(s)V^{\pi_u,\gamma}(s)
+\end{equation}
+Here $d^b(s)$ is the distribution of states under $b$ and $P(s_t=s|s_0,b)$ is the probability  that $s_t=s$ when starting in $s_0$ and executing b. This objective function is weighted by $d^b$ as in off policy setting data is obtained using this behavior distribution. Secondly, they provide the policy gradient theorem for this off-policy method. They approximate the following function 
+\begin{equation}
+    \nabla_u J_{\gamma}(u) \approx g(u)=\sum_{s\in S}d^b(s) \sum_{a \in \mathcal(A)} \nabla_u \pi(a|s)Q^{\pi,\gamma}(s,a)
+\end{equation}
+ $Q(s, a)$ is a value function that evaluates an action a taken in state $s$. We multiply that by the gradient of the probability of action a given state $s$ following policy $\pi$ with respect to weights $u$. We then sum up the products for all action $a$ in our action space, giving us an expectation of the gradient of the value for state $s$. Then, we multiply this by a weight given by the behavior distribution $d^ᵇ$ for state $s$ and sum the weighted values for all states $s$ in our state space. The final value would be the approximate gradient of the performance measure for our weights $u$. Thirdly, this paper shows an empirical comparison of $Q(\lambda)$, Greedy-GQ, Off-PAC, and a soft-max version of Greedy-GQ. However, this algorithm can be very sensitive to parameter choices  where it has four parameters $\lambda$ and three step sizes $\alpha_v$ and $\alpha_w$ for the critic and $\alpha_u$ for the actor. 
+ 
+ Although previous off policy actor-critic algorithms introduced a new critic that uses the density ratio for adjusting the distribution mismatch in order to stabilize the convergence, it can cause high biases due to the estimation errors on both the density ratio and value function. To overcome this, paper \cite{xu2021doubly} proposes estimator that has small bias under flexible condition. They design efficient policy optimization algorithm with new estimator. They also analyze the convergence for the proposed algorithm. It shows that DR-Off-PAC will converge to optimal policy and the optimality gap of the overall convergence is also doubly robust to the approximation errors.This convergence is done in finite time with single timescale updates. This proposed estimator is a doubly robust policy gradient estimator for an infinite horizon discounted MDP. It is able to reduce bias significantly. They create a new method for critics to estimate the nuisances in the infinite horizon off policy setting. This is model-free. As a single timescale scheme is followed in the algorithm actor's update is based on inexact estimations of critics, it has significant effects on the convergence of the algorithm.
+
+To derive a doubly robust gradient estimator in the discounted MDP setting, the authors first consider a bias reduced estimator of the objective J(w) with off-policy sample (s,a,r,s') and $s_0$ and then take the derivative of such an estimator to obtain a doubly robust policy gradient estimator.
+
+Given sample $s_0$ ~ $\mu_0 (.)$ and (s,a,r,s') ~ $D_d$ and the estimators the constructed doubly robust policy gradient error is given by:
+\begin{multline*}
+    G_{DR}(w)=(1-\lambda) (\hat{Q}_{\pi_w}(s_0,a_0) \nabla_w log \pi_w(a_0|s_0)+\hat{d}^{q}_{\pi_w}(s_0,s_0))\\
+    + \hat{d}^{\rho}_{\pi_w}(s,a)(r(s,a,s')-\hat{Q}_{\pi_w}(s,a) + \gamma \hat{Q}_{\pi_w}(s',a'))\\
+    + \hat{\rho}_{\pi_w}(s,a)[-\hat{d}^{q}_{\pi_w}(s,a)\\
+    + \gamma(\hat{Q}_{\pi_w}(s',a')\nabla_w log \pi_w (a'|s')+\hat{d}^q_{\pi_w}(s',a')]
+\end{multline*}
+The bias error of estimator above $G_{DR}(w)$ satisfies the following: 
+\begin{multline*}
+    \mathbb{E}[G_{DR}(w)]-\nabla_w J(w)\\
+    =-\mathbb{E}[\epsilon_p(s,a)\epsilon_{d^q}(s,a)]-\mathbb{E}[\epsilon_{d^p}(s,a)\epsilon_q(s,a)]\\
+    +\gamma \mathbb{E}[\epsilon_p(s,a)\epsilon_q(s',a')\nabla_w log(a'|s')]\\
+    +\gamma \mathbb{E}[\epsilon_p(s,a)\epsilon_{d^q}(s',a')]+\gamma \mathbb{E}[\epsilon_p(s,a)\epsilon_q(s',a')],
+\end{multline*}
+where $\epsilon_\rho=\rho_{\pi_w}-\hat{\rho}_{\pi_w}$, $\epsilon_q=Q_{\pi_w}-\hat{Q}_{\pi_w}$,
+$\epsilon_{d^\rho}=d^{\rho}_{\pi_w}-\hat{d}^{\rho}_{\pi_w}$, $\epsilon_{d^q}=d^q_{\pi_w}-\hat{d}^q_{\pi_w}$
+
+\textbf{Critic 1}:
+\begin{align}
+    \begin{split}
+        \delta_{t,i}=(1-\gamma)\phi_{0,i}+\gamma \phi_i^\intercal \theta_{\rho,t}\phi_i'-\phi_i^\intercal \theta_{\rho,t}\phi_i \\
+        \eta_{t+1}=\theta_{\rho,t}+\beta_1\frac{1}{N}\sum_{i \in \mathcal{B}_t}(\phi_i^\intercal \theta_{\rho,t}-1-\eta_t)\\
+        \theta_{q,t+1}=\Gamma_{R_q}[\theta_{q,t}+\beta_1 \frac{1}{N}\sum_{i \in \mathcal{B}_t, \mathcal{B}{t,0}}(\delta_{t,i}-\phi_i^\intercal \theta_{q,t}\phi_i)]\\
+        \theta_{\rho,t+1}=\Gamma_{R_\rho}[\theta_{\rho,t}-\beta_1 \frac{1}{N}\sum_{i \in \mathcal{B}_t}(r_i \phi_i +\gamma \phi^{'\intercal}\theta_{q,t}\phi_i)-\phi_i^\intercal \theta_{q,t}\phi_i+\eta_t\phi_i)]
+    \end{split}
+\end{align}
+
+\textbf{Critic 2}:
+\begin{align}
+    \begin{split}
+        \theta_{d_q, t+1}=\theta_{d_q,t}+\beta_3 \frac{1}{N}\sum_{i \in \mathcal{B}_t}(x_i-\gamma x'_i)x_i^\intercal w_{d_q,t},\\
+        w_{d_q,t+1}=w_{d_q,t}+ \beta_3 \frac{1}{N}\sum_{i \in \mathcal{B}_t}(x_i\delta_{d_q,i}(\theta_{q,t})-w_{d_q,t})
+    \end{split}
+\end{align}
+
+\textbf{Critic 3}:
+\begin{align}
+    \begin{split}
+        \theta_{\psi,t+1}=\theta_{\psi,t}+\beta_2 \frac{1}{N}\sum_{i \in \Tilde{\mathcal{B}_t}}
+        (\varphi_i^{'}-\varphi_i)\varphi^{'\intercal} w_{\psi,t}\\
+        w_{\psi,t+1}=w_{\psi,t}+\beta_2 \frac{1}{N}\sum_{i \in \Tilde{\mathcal{B}_t}}(\varphi'\delta_{\psi,t}-w_{\psi,t})
+    \end{split}
+\end{align}
+
+ Given parameters $\theta_{\rho,t}, \theta_{q,t}, \theta_{\phi,t}, \theta_{d_q,t}$, the doubly robust policy can be obtained as follows:
+\begin{multline*}
+    G_{DR}^i(w_t)\\
+        =(1-\gamma)(\phi_{0,i}^\intercal \theta_{q,t} \nabla_w log \pi_w(s_{0,i},a_{0,i})+x_{0,i}^\intercal\theta_{d_q,t})\\
+        +\psi_i^\intercal \theta_{\psi,t}(r(s_i,a_i,s_i')-\phi_i^\intercal \theta_{q,t}\gamma \mathbb{E}_{\pi_{w_t}}[\phi'_i^\intercal\theta_{q,t}])\\
+        +\phi_i^\intercal \theta_{\rho,t}(-x_i^\intercal \theta_{d_q),t}\\
+        +\gamma \phi_i^\intercal \theta_{q,t} \nabla_w log \pi_w(s_{t,i},a_{t,i})+x_i^\intercal \theta_{d_q,t}
+\end{multline*}
+
+
+
+        
+
